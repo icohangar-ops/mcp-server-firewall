@@ -1,0 +1,16 @@
+{
+  "name": "mcp-server-firewall",
+  "version": "0.1.0",
+  "description": "Capability-scoped proxy that sits between an MCP client and upstream MCP servers: tool allowlists, filesystem/network egress scoping, env brokering, and a full audit log.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/proxy.js --policy policy.json",
+    "demo": "node examples/demo.js",
+    "test": "node --test test/policy.test.js test/proxy.integration.test.js"
+  },
+  "license": "MIT"
+}

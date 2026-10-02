@@ -1,0 +1,10 @@
+{
+  "server": { "command": "node", "args": ["examples/echo-server.js"] },
+  "tools": { "allow": ["read_file", "echo", "print_env"] },
+  "filesystem": { "allowedRoots": ["/tmp/mcp-fw-demo"] },
+  "network": { "allowedDomains": ["api.example.com"] },
+  "env": { "allow": ["PATH", "HOME"] },
+  "redactArgKeys": ["api_key", "token", "password"],
+  "jev": { "enabled": false, "threshold": 0.5 },
+  "auditLog": "audit.log"
+}
