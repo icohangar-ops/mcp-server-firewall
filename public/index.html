@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mcp-server-firewall — capability-scoped proxy for MCP servers</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0d1117; color: #e6edf3; line-height: 1.55; }
+  main { max-width: 760px; margin: 0 auto; padding: 48px 20px 64px; }
+  h1 { font-size: 2rem; margin: 0 0 6px; }
+  .tagline { color: #9fb0c3; margin: 0 0 28px; }
+  h2 { font-size: 1.15rem; margin: 34px 0 10px; color: #f0f6fc; }
+  p { color: #c9d4e0; }
+  ul { padding-left: 20px; color: #c9d4e0; }
+  li { margin: 6px 0; }
+  code { background: #161b22; border: 1px solid #2b3442; border-radius: 4px; padding: 1px 5px; font-size: 0.9em; }
+  button { background: #1f6feb; color: #fff; border: 0; border-radius: 6px; padding: 10px 18px; font-size: 0.95rem; cursor: pointer; }
+  button:hover { background: #2b7bff; }
+  pre { background: #161b22; border: 1px solid #2b3442; border-radius: 8px; padding: 14px; overflow-x: auto; font-size: 0.82rem; white-space: pre-wrap; word-break: break-word; min-height: 60px; }
+  a { color: #58a6ff; }
+  footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid #2b3442; color: #8b98a9; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>mcp-server-firewall</h1>
+  <p class="tagline">A capability-scoped proxy between an MCP client and an upstream MCP server — the server only ever gets the powers your policy grants it.</p>
+
+  <h2>The problem</h2>
+  <p>As r/mcp put it: "MCP is a security joke." A typical MCP server runs as a local process with effectively root-equivalent access — it can read any file the user can read (<code>~/.ssh</code>, <code>~/.aws</code>, your <code>.env</code>), make arbitrary network requests, and see every environment variable in its parent process, including cloud credentials and API keys it has no business touching. There is no sandbox, no permission model, and no audit trail. The firewall is the governed gateway that should have been in the middle from the start.</p>
+
+  <h2>What it enforces</h2>
+  <ul>
+    <li><strong>Tool allowlist</strong> — the client can only call tools you name. Everything else is denied, including tools the upstream server advertises.</li>
+    <li><strong>Filesystem + network egress scoping</strong> — path arguments must resolve inside configured allowed roots (<code>..</code> traversal is resolved before the check), and URL arguments must point at allowlisted domains.</li>
+    <li><strong>Env brokering</strong> — the upstream process is spawned with <em>only</em> the environment variables named in the policy. Secrets not listed never reach the server.</li>
+    <li><strong>Full audit log</strong> — every request and response is recorded in JSONL with the policy decision and the human-readable reason. Denied calls return a JSON-RPC error explaining exactly which rule blocked them.</li>
+  </ul>
+
+  <h2>Live demo</h2>
+  <p>Runs three sample tool calls through the real policy engine against the example policy (tools <code>read_file</code>, <code>echo</code>, <code>print_env</code>; filesystem root <code>/srv/app-data</code>): a read inside the allowed root, a read of <code>/etc/passwd</code>, and a call to a tool that isn't on the allowlist.</p>
+  <button id="run" type="button">Run demo</button>
+  <pre id="out">Press “Run demo” to evaluate the three sample calls.</pre>
+
+  <h2>Source</h2>
+  <p><a href="https://github.com/icohangar-ops/mcp-server-firewall">github.com/icohangar-ops/mcp-server-firewall</a></p>
+
+  <footer>A Cubiczan reference build — governed AI systems for high-trust operators. sam@cubiczan.com</footer>
+</main>
+<script>
+  const btn = document.getElementById('run');
+  const out = document.getElementById('out');
+  btn.addEventListener('click', async () => {
+    out.textContent = 'Running…';
+    try {
+      const r = await fetch('/api/demo');
+      const data = await r.json();
+      out.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {
+      out.textContent = 'Demo request failed: ' + e.message;
+    }
+  });
+</script>
+</body>
+</html>
