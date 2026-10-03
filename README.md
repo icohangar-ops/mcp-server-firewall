@@ -4,6 +4,16 @@ A capability-scoped proxy that sits between an MCP (Model Context Protocol)
 client and an upstream MCP server, so the server only ever gets the powers
 your policy grants it — not the keys to the machine.
 
+<!-- product-screenshots:start -->
+## Product screenshots
+
+MCP policy-firewall overview; its sample tool-call demo was not run.
+
+![mcp-server-firewall interface](docs/screenshots/product-overview.png)
+
+Captured locally and non-interactively from [source commit 7ec2a0b548f0](https://github.com/icohangar-ops/mcp-server-firewall/tree/7ec2a0b548f042c16e37e65aa2dfcd3eef1bd2f5); mcp policy-firewall overview; its sample tool-call demo was not run.
+<!-- product-screenshots:end -->
+
 ## The problem
 
 > "MCP is a security joke." — r/mcp
